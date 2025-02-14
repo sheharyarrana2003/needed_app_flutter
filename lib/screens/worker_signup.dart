@@ -1,4 +1,13 @@
+import 'dart:io';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:needed_app/firebaseoptions.dart';
+import 'package:needed_app/screens/logIn_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:needed_app/customWidgets/blueButton.dart';
 import 'package:needed_app/customWidgets/textField.dart';
 import 'package:needed_app/screens/navigation_menu.dart';
@@ -17,7 +26,13 @@ class _WorkerSignupState extends State<WorkerSignup> {
   final _passController = TextEditingController();
   final _phoneController = TextEditingController();
   final _cnicController = TextEditingController();
+
+  File? file;
+  final ImagePicker imagePicker = ImagePicker();
   String? workerType;
+  double rating = 0.0;
+  bool available = true;
+
   List<String> types = [
     "Plumber",
     "Electrician",
@@ -26,153 +41,186 @@ class _WorkerSignupState extends State<WorkerSignup> {
     "Mason",
     "Labour"
   ];
+
+  Future<void> _selectedImage() async {
+    final XFile? pickedFile =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final File imageFile = File(pickedFile.path);
+      final img.Image? image = img.decodeImage(imageFile.readAsBytesSync());
+
+      if (image != null) {
+        img.Image resizedImage = img.copyResize(image, width: 400);
+        final resizedFile = File(pickedFile.path)
+          ..writeAsBytesSync(img.encodeJpg(resizedImage));
+
+        setState(() {
+          file = resizedFile;
+        });
+      }
+    }
+  }
+
+  Future<void> _signUpWorker() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: "${_phoneController.text}@neededapp.com",
+                password: _passController.text);
+
+        String imageBase64 = "";
+        if (file != null) {
+          final bytes = file!.readAsBytesSync();
+          imageBase64 = base64Encode(bytes);
+        }
+
+        String userId = userCredential.user!.uid;
+
+        await Firebaseoptions.workerCollections.doc(userId).set({
+          "name": _nameController.text.toString(),
+          "phone": _phoneController.text.toString(),
+          "cnic": _cnicController.text.toString(),
+          "category": workerType.toString(),
+
+        });
+
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const NavigationMenu()),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Sign up failed: $e")),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: blueColor,
-          title: const Center(
-            child: Text(
-              'Worker Signup',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 22),
-            ),
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: ListView(children: [
-              const SizedBox(
-                height: 20,
-              ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              const SizedBox(height: 20),
               Center(
-                child: Container(
-                  width: 130,
-                  height: 130,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(width: 2.0, color: blueColor),
-                      left: BorderSide(width: 2.0, color: blueColor),
-                      right: BorderSide(width: 2.0, color: blueColor),
-                      bottom: BorderSide(width: 2.0, color: blueColor),
-                    ),
-                    shape: BoxShape.circle,
-                    image: const DecorationImage(
-                      image: AssetImage("assets/Images/worker.jpg"),
-                      fit: BoxFit.fill, // Change to contain, fill, etc.
-                    ),
+                child: Text(
+                  'Worker Signup',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: blueColor,
+                    fontSize: 24,
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: buildTextField("Name", _nameController, Icons.person,
-                    (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please Enter Name";
-                  }
-                  return null;
-                }),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: buildTextField(
-                    "Phone Number", _phoneController, Icons.phone, (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please Enter Number";
-                  }
-                  return null;
-                }),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: buildTextField("CNIC", _cnicController, Icons.numbers,
-                    (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please Enter CNIC";
-                  }
-                  return null;
-                }),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: DropdownButtonFormField<String>(
-                  borderRadius: BorderRadius.circular(11),
-                  value: workerType,
-                  items: types.map((String category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      workerType = newValue;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Category",
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(11),
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 2),
+              const SizedBox(height: 20),
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 65,
+                      backgroundImage: file != null ? FileImage(file!) : null,
+                      child: file == null
+                          ? Icon(Icons.person, size: 50, color: Colors.white)
+                          : null,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(11),
-                      borderSide:
-                          const BorderSide(color: Colors.black, width: 2),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: IconButton(
+                        onPressed: _selectedImage,
+                        icon: const Icon(Icons.add_a_photo),
+                        color: Colors.blue,
+                      ),
                     ),
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16.0),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please select a category";
-                    }
-                    return null;
-                  },
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: buildTextField(
-                    "Password", _passController, Icons.password, (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please Enter Password";
-                  }
-                  return null;
-                }),
-              ),
-              const SizedBox(
-                height: 20,
+              const SizedBox(height: 20),
+              buildTextField("Name", _nameController, Icons.person, (value) {
+                if (value == null || value.isEmpty) return "Enter name";
+                return null;
+              }),
+              buildTextField("Phone Number", _phoneController, Icons.phone,
+                  (value) {
+                if (value == null || value.isEmpty) return "Enter phone number";
+                return null;
+              }),
+              buildTextField("CNIC", _cnicController, Icons.numbers, (value) {
+                if (value == null || value.isEmpty) return "Enter CNIC";
+                return null;
+              }),
+              buildTextField("Password", _passController, Icons.home,
+                  (value) {
+                if (value == null || value.isEmpty) return "Enter address";
+                return null;
+              }),
+
+              DropdownButtonFormField<String>(
+                value: workerType,
+                items: types.map((String category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    workerType = newValue;
+                  });
+                },
+                decoration: InputDecoration(labelText: "Category"),
+                validator: (value) =>
+                    value == null ? "Select a category" : null,
               ),
               Center(
-                  child: CustomButton(
-                      height: 50,
-                      width: 160,
-                      color: blueColor,
-                      text: "Sign Up",
-                      opacity: 0.5,
-                      fontSize: 18,
+                child: CustomButton(
+                    height: 50,
+                    width: 160,
+                    color: blueColor,
+                    text: "Sign Up",
+                    opacity: 0.5,
+                    fontSize: 18,
+                    onTap: () {
+                      _signUpWorker();
+                    }),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Already have an account? ",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    GestureDetector(
                       onTap: () {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const NavigationMenu()));
-                      })),
-            ]),
+                                builder: (context) => LogInScreen()));
+                      },
+                      child: Text(
+                        "Log In",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: blueColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:needed_app/customWidgets/blueButton.dart';
+import 'package:needed_app/screens/admin_screen.dart';
 import 'package:needed_app/screens/home.dart';
+import 'package:needed_app/screens/logIn_screen.dart';
 import 'package:needed_app/screens/messages.dart';
 import 'package:needed_app/screens/profile.dart';
 import 'package:needed_app/screens/services.dart';
@@ -94,7 +96,10 @@ class _NavigationMenuState extends State<NavigationMenu> {
       ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => AdminVerificationPage()));
+        },
         elevation: 5,
         backgroundColor: blueColor,
         child: Icon(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:needed_app/customWidgets/blueButton.dart';
+import 'package:needed_app/screens/payment_screen.dart';
 import 'package:needed_app/variables/colors.dart';
 
 class Detailscreen extends StatelessWidget {
@@ -81,7 +82,10 @@ class Detailscreen extends StatelessWidget {
               text: "Book Now",
               opacity: 0.4,
               fontSize: 18,
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PaymentScreen()));
+              },
             ),
             const SizedBox(
               height: 20,
