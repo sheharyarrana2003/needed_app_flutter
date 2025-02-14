@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:needed_app/firebaseoptions.dart';
 import 'package:needed_app/screens/logIn_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:needed_app/customWidgets/blueButton.dart';
 import 'package:needed_app/customWidgets/textField.dart';
 import 'package:needed_app/screens/navigation_menu.dart';
+import 'package:needed_app/screens/pendingScreen.dart';
 import 'package:needed_app/variables/colors.dart';
 
 class WorkerSignup extends StatefulWidget {
@@ -30,8 +30,7 @@ class _WorkerSignupState extends State<WorkerSignup> {
   File? file;
   final ImagePicker imagePicker = ImagePicker();
   String? workerType;
-  double rating = 0.0;
-  bool available = true;
+  bool isLoading = false;
 
   List<String> types = [
     "Plumber",
@@ -44,7 +43,7 @@ class _WorkerSignupState extends State<WorkerSignup> {
 
   Future<void> _selectedImage() async {
     final XFile? pickedFile =
-        await imagePicker.pickImage(source: ImageSource.gallery);
+    await imagePicker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       final File imageFile = File(pickedFile.path);
@@ -64,38 +63,38 @@ class _WorkerSignupState extends State<WorkerSignup> {
 
   Future<void> _signUpWorker() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
       try {
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
-                email: "${_phoneController.text}@neededapp.com",
-                password: _passController.text);
-
-        String imageBase64 = "";
-        if (file != null) {
-          final bytes = file!.readAsBytesSync();
-          imageBase64 = base64Encode(bytes);
-        }
+            email: "${_phoneController.text}@neededapp.com",
+            password: _passController.text);
 
         String userId = userCredential.user!.uid;
 
         await Firebaseoptions.workerCollections.doc(userId).set({
+          "uid":userId,
           "name": _nameController.text.toString(),
           "phone": _phoneController.text.toString(),
           "cnic": _cnicController.text.toString(),
           "category": workerType.toString(),
-
+          "status": "pending",
         });
-
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const NavigationMenu()),
+          MaterialPageRoute(builder: (context) => const PendingScreen()),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Sign up failed: $e")),
         );
       }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -148,21 +147,23 @@ class _WorkerSignupState extends State<WorkerSignup> {
                 if (value == null || value.isEmpty) return "Enter name";
                 return null;
               }),
+              const SizedBox(height: 16),
               buildTextField("Phone Number", _phoneController, Icons.phone,
-                  (value) {
-                if (value == null || value.isEmpty) return "Enter phone number";
-                return null;
-              }),
+                      (value) {
+                    if (value == null || value.isEmpty) return "Enter phone number";
+                    return null;
+                  }),
+              const SizedBox(height: 16),
               buildTextField("CNIC", _cnicController, Icons.numbers, (value) {
                 if (value == null || value.isEmpty) return "Enter CNIC";
                 return null;
               }),
-              buildTextField("Password", _passController, Icons.home,
-                  (value) {
-                if (value == null || value.isEmpty) return "Enter address";
+              const SizedBox(height: 16),
+              buildTextField("Password", _passController, Icons.lock, (value) {
+                if (value == null || value.isEmpty) return "Enter password";
                 return null;
               }),
-
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: workerType,
                 items: types.map((String category) {
@@ -178,35 +179,34 @@ class _WorkerSignupState extends State<WorkerSignup> {
                 },
                 decoration: InputDecoration(labelText: "Category"),
                 validator: (value) =>
-                    value == null ? "Select a category" : null,
+                value == null ? "Select a category" : null,
               ),
+              const SizedBox(height: 20),
               Center(
-                child: CustomButton(
-                    height: 50,
-                    width: 160,
-                    color: blueColor,
-                    text: "Sign Up",
-                    opacity: 0.5,
-                    fontSize: 18,
-                    onTap: () {
-                      _signUpWorker();
-                    }),
+                child: isLoading
+                    ? CircularProgressIndicator()
+                    : CustomButton(
+                  height: 50,
+                  width: 160,
+                  color: blueColor,
+                  text: "Sign Up",
+                  opacity: 0.5,
+                  fontSize: 18,
+                  onTap: _signUpWorker,
+                ),
               ),
               const SizedBox(height: 20),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Already have an account? ",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    const Text("Already have an account? ", style: TextStyle(fontSize: 16)),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LogInScreen()));
+                          context,
+                          MaterialPageRoute(builder: (context) => LogInScreen()),
+                        );
                       },
                       child: Text(
                         "Log In",

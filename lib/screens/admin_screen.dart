@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:needed_app/variables/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:needed_app/firebaseoptions.dart';
+import 'package:needed_app/customWidgets/blueButton.dart';
+import 'package:needed_app/screens/login_screen.dart';
 
 class AdminVerificationPage extends StatefulWidget {
   const AdminVerificationPage({super.key});
@@ -9,153 +13,74 @@ class AdminVerificationPage extends StatefulWidget {
 }
 
 class _AdminVerificationPageState extends State<AdminVerificationPage> {
-  List<Map<String, String>> workers = [
-    {
-      "name": "Ali Khan",
-      "type": "Plumber",
-      "phone": "0321-1234567",
-      "address": "House #123, Street 4, Lahore"
-    },
-    {
-      "name": "Usman Ahmed",
-      "type": "Electrician",
-      "phone": "0300-9876543",
-      "address": "Street 7, Karachi"
-    },
-    {
-      "name": "Shoaib Malik",
-      "type": "Carpenter",
-      "phone": "0345-5678901",
-      "address": "Gulberg, Islamabad"
-    },
-    {
-      "name": "Ali Khan",
-      "type": "Plumber",
-      "phone": "0321-1234567",
-      "address": "House #123, Street 4, Lahore"
-    },
-    {
-      "name": "Usman Ahmed",
-      "type": "Electrician",
-      "phone": "0300-9876543",
-      "address": "Street 7, Karachi"
-    },
-    {
-      "name": "Shoaib Malik",
-      "type": "Carpenter",
-      "phone": "0345-5678901",
-      "address": "Gulberg, Islamabad"
-    },
-    {
-      "name": "Ali Khan",
-      "type": "Plumber",
-      "phone": "0321-1234567",
-      "address": "House #123, Street 4, Lahore"
-    },
-    {
-      "name": "Usman Ahmed",
-      "type": "Electrician",
-      "phone": "0300-9876543",
-      "address": "Street 7, Karachi"
-    },
-    {
-      "name": "Shoaib Malik",
-      "type": "Carpenter",
-      "phone": "0345-5678901",
-      "address": "Gulberg, Islamabad"
-    }
-  ];
+  void updateStatus(String userId, String status) {
+    Firebaseoptions.workerCollections.doc(userId).update({'status': status});
+  }
+
+  void _logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LogInScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
       appBar: AppBar(
-        backgroundColor: blueColor,
-        iconTheme: IconThemeData(color: white),
-        title: const Text(
-          "Verification Panel",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        centerTitle: true,
+        title: const Text("Verification Panel"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CustomButton(
+              height: 40,
+              width: 100,
+              color: Colors.red,
+              text: "Logout",
+              opacity: 0.9,
+              fontSize: 16,
+              onTap: _logout,
+            ),
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(14.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Pending Verifications",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: workers.length,
-                itemBuilder: (context, index) {
-                  final worker = workers[index];
-                  return Card(
-                    color: Colors.grey.shade200,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(12),
-                      title: Text(
-                        worker["name"]!,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+      body: StreamBuilder(
+        stream: Firebaseoptions.workerCollections.where('status', isEqualTo: 'pending').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          var workers = snapshot.data!.docs;
+          return workers.isEmpty
+              ? const Center(child: Text("No pending verifications"))
+              : ListView.builder(
+            itemCount: workers.length,
+            itemBuilder: (context, index) {
+              var worker = workers[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                child: ListTile(
+                  title: Text(worker['name']),
+                  subtitle: Text(worker['category']),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.check, color: Colors.green),
+                        onPressed: () => updateStatus(worker.id, 'approved'),
                       ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Type: ${worker["type"]}"),
-                          Text("Phone: ${worker["phone"]}"),
-                          Text("Address: ${worker["address"]}"),
-                        ],
+                      IconButton(
+                        icon: const Icon(Icons.cancel, color: Colors.red),
+                        onPressed: () => updateStatus(worker.id, 'rejected'),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.check_circle,
-                                color: Colors.green, size: 40),
-                            onPressed: () {
-                              setState(() {
-                                workers.removeAt(index);
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text("${worker["name"]} Accepted"),
-                                    backgroundColor: Colors.green),
-                              );
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.cancel,
-                                color: Colors.red, size: 40),
-                            onPressed: () {
-                              setState(() {
-                                workers.removeAt(index);
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text("${worker["name"]} Rejected"),
-                                    backgroundColor: Colors.red),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

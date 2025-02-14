@@ -1,10 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:needed_app/customWidgets/blueButton.dart';
 import 'package:needed_app/screens/payment_screen.dart';
 import 'package:needed_app/variables/colors.dart';
 
-class Detailscreen extends StatelessWidget {
-  const Detailscreen({super.key});
+class DetailScreen extends StatelessWidget {
+
+  final String name;
+  final String profession;
+  final String description;
+  final String status;
+  final String address;
+  final double reviews;
+  final String contact;
+  final String experience;
+
+  const DetailScreen({
+    super.key,
+    required this.name,
+    required this.profession,
+    required this.description,
+    required this.status,
+    required this.address,
+    required this.reviews,
+    required this.contact,
+    required this.experience,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +63,14 @@ class Detailscreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    "Ishfaq Mian",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Text(
+                    name,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    "Plumber",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                  Text(
+                    profession,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
                   ),
                 ],
               ),
@@ -65,12 +86,12 @@ class Detailscreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildRowText("Description", "Quality Work"),
-                  buildRowText("Status", "Available", color: blueColor),
-                  buildRowText("Address", "Johar town"),
-                  buildRowTextWithIcon("Reviews", "3.0"),
-                  buildRowText("Contact", "12345678901"),
-                  buildRowText("Experience", "1 Year"),
+                  buildRowText("Description", description),
+                  buildRowText("Status", status, color: blueColor),
+                  buildRowText("Address", address),
+                  buildRowTextWithIcon("Reviews", reviews.toString()),
+                  buildRowText("Contact", contact),
+                  buildRowText("Experience", experience),
                 ],
               ),
             ),
@@ -84,17 +105,15 @@ class Detailscreen extends StatelessWidget {
               fontSize: 18,
               onTap: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => PaymentScreen()));
+                    MaterialPageRoute(builder: (context) => PaymentScreen(name: name, phone: contact, address: address, type: profession )));
               },
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             CustomButton(
               color: blueColor,
               height: 50,
               width: 160,
-              text: "Schdule",
+              text: "Schedule",
               opacity: 0.4,
               fontSize: 18,
               onTap: () {},
@@ -105,8 +124,7 @@ class Detailscreen extends StatelessWidget {
     );
   }
 
-  Widget buildRowText(String label, String value,
-      {Color color = Colors.black}) {
+  Widget buildRowText(String label, String value, {Color color = Colors.black}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(

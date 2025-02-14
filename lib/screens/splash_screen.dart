@@ -1,8 +1,15 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:needed_app/screens/worker_signup.dart';
-
+import 'package:needed_app/firebaseoptions.dart';
+import 'package:needed_app/screens/admin_screen.dart';
+import 'package:needed_app/screens/logIn_screen.dart';
+import 'package:needed_app/screens/navigation_menu.dart';
+import 'package:needed_app/screens/pendingScreen.dart';
+import 'package:needed_app/screens/rejectedScreen.dart';
 import '../variables/colors.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -11,12 +18,70 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 6000), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>WorkerSignup()));
-    });
+    _navigateUser();
   }
+
+  void _navigateUser() async {
+    await Future.delayed(const Duration(milliseconds: 6000));
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LogInScreen()),
+      );
+    } else {
+      if (user.email == "admin@neededapp.com") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminVerificationPage()),
+        );
+        return;
+      }
+
+      try {
+        DocumentSnapshot userDoc = await Firebaseoptions.workerCollections
+            .doc(user.uid)
+            .get();
+
+        String status = userDoc["status"] ?? "pending";
+
+        if (status == "approved") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const NavigationMenu()),
+          );
+        } else if (status == "pending") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const PendingScreen()),
+          );
+        } else if (status == "rejected") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const RejectedScreen()),
+          );
+        } else {
+          // If none of the conditions match, go to login screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LogInScreen()),
+          );
+        }
+      } catch (e) {
+        print("Error fetching user status: $e");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LogInScreen()),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,18 +98,18 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
           ),
-          const SizedBox(
-            height: 25,
-          ),
+          const SizedBox(height: 25),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Text(
-                "Needed",
-                textAlign: TextAlign.justify,
-                style: TextStyle(
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w600,
-                    color: blueColor)),
+              "Needed",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 25.0,
+                fontWeight: FontWeight.w600,
+                color: blueColor,
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),

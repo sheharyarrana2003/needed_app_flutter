@@ -3,7 +3,11 @@ import 'package:needed_app/screens/feedback_screen.dart';
 import 'package:needed_app/variables/colors.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final String name;
+  final String phone;
+  final String address;
+  final String type;
+  const PaymentScreen({super.key, required this.name, required this.phone, required this.address, required this.type});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -82,11 +86,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
             SizedBox(
               height: 10,
             ),
-            buildRowTexts(label: "Type", value: "Plumber"),
-            buildRowTexts(label: "Name", value: "Ishfaq Mian"),
-            buildRowTexts(label: "Address", value: "Johar Town"),
+            buildRowTexts(label: "Type", value: widget.type),
+            buildRowTexts(label: "Name", value: widget.name),
+            buildRowTexts(label: "Address", value: widget.address),
             buildRowTexts(
-                label: "Contact", value: "12345678901", icon: Icons.call),
+                label: "Contact", value: widget.phone, icon: Icons.call),
             SizedBox(
               height: 20,
             ),

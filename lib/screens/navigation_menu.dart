@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:needed_app/customWidgets/blueButton.dart';
 import 'package:needed_app/screens/admin_screen.dart';
@@ -90,7 +91,13 @@ class _NavigationMenuState extends State<NavigationMenu> {
                     opacity: 0.5,
                     fontSize: 18,
                     text: "Log Out",
-                    onTap: () {})),
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LogInScreen()),
+                      );
+                    })),
           ],
         ),
       ),
