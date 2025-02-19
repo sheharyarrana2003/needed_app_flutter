@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateUser() async {
-    await Future.delayed(const Duration(milliseconds: 6000));
+    await Future.delayed(const Duration(seconds: 6));
 
     User? user = FirebaseAuth.instance.currentUser;
 
@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
             MaterialPageRoute(builder: (context) => const RejectedScreen()),
           );
         } else {
-          // If none of the conditions match, go to login screen
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const LogInScreen()),

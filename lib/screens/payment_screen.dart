@@ -33,7 +33,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: GestureDetector(
           onTap: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => FeedbackScreen()));
+                MaterialPageRoute(builder: (context) => FeedbackScreen(name: widget.name,phone: widget.phone,address: widget.address,type: widget.type,)));
           },
           child: Container(
             height: 60,

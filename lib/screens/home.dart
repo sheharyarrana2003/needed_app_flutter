@@ -29,7 +29,6 @@ class _HomeState extends State<Home> {
             children: [
               const SizedBox(height: 10),
 
-              /// Search & Filter Row
               Row(
                 children: [
                   Expanded(
@@ -76,7 +75,6 @@ class _HomeState extends State<Home> {
               ),
               const SizedBox(height: 20),
 
-              /// Workers List
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: Firebaseoptions.workerCollections.snapshots(),

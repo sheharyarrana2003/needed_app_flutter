@@ -34,104 +34,108 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: white,
-      appBar: AppBar(
-        backgroundColor: blueColor,
-        iconTheme: IconThemeData(color: white),
-        title: Text(
-          'Needed',
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: white, fontSize: 22),
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: white,
+        appBar: AppBar(
+          backgroundColor: blueColor,
+          iconTheme: IconThemeData(color: white),
+          title: Text(
+            'Needed',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: white, fontSize: 22),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            const SizedBox(height: 70),
-            Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(width: 3, color: blueColor),
-                image: const DecorationImage(
-                  image: AssetImage("assets/Images/worker.jpg"),
-                  fit: BoxFit.cover,
+        drawer: Drawer(
+          child: Column(
+            children: [
+              const SizedBox(height: 70),
+              Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(width: 3, color: blueColor),
+                  image: const DecorationImage(
+                    image: AssetImage("assets/Images/worker.jpg"),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 30),
-            const Divider(
-              color: Colors.black,
-              thickness: 2,
-              indent: 30,
-              endIndent: 30,
-            ),
-            const SizedBox(height: 20),
-            buildDrawerItem(label: "Account Information"),
-            buildDrawerItem(label: "Previous Bookings"),
-            buildDrawerItem(label: "Current Bookings"),
-            buildDrawerItem(label: "Settings"),
-            buildDrawerItem(label: "FAQ's"),
-            const SizedBox(height: 20),
-            const Divider(
-              color: Colors.black,
-              thickness: 2,
-              indent: 30,
-              endIndent: 30,
-            ),
-            const SizedBox(height: 30),
-            Center(
-                child: CustomButton(
-                    height: 50,
-                    width: 160,
-                    color: blueColor,
-                    opacity: 0.5,
-                    fontSize: 18,
-                    text: "Log Out",
-                    onTap: () async {
-                      await FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LogInScreen()),
-                      );
-                    })),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        shape: const CircleBorder(),
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AdminVerificationPage()));
-        },
-        elevation: 5,
-        backgroundColor: blueColor,
-        child: Icon(
-          Icons.question_mark,
-          color: white,
-          size: 30,
-        ),
-      ),
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        child: BottomAppBar(
-          color: blueColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _bottomAppBarItem(icon: Icons.home, page: 0, label: "Home"),
-              _bottomAppBarItem(icon: Icons.group, page: 1, label: "Services"),
-              _bottomAppBarItem(
-                  icon: Icons.message, page: 2, label: "Messages"),
-              _bottomAppBarItem(icon: Icons.person, page: 3, label: "Profile"),
+              const SizedBox(height: 30),
+              const Divider(
+                color: Colors.black,
+                thickness: 2,
+                indent: 30,
+                endIndent: 30,
+              ),
+              const SizedBox(height: 20),
+              buildDrawerItem(label: "Account Information"),
+              buildDrawerItem(label: "Previous Bookings"),
+              buildDrawerItem(label: "Current Bookings"),
+              buildDrawerItem(label: "Settings"),
+              buildDrawerItem(label: "FAQ's"),
+              const SizedBox(height: 20),
+              const Divider(
+                color: Colors.black,
+                thickness: 2,
+                indent: 30,
+                endIndent: 30,
+              ),
+              const SizedBox(height: 30),
+              Center(
+                  child: CustomButton(
+                      height: 50,
+                      width: 160,
+                      color: blueColor,
+                      opacity: 0.5,
+                      fontSize: 18,
+                      text: "Log Out",
+                      onTap: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LogInScreen()),
+                        );
+                      })),
             ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          shape: const CircleBorder(),
+          onPressed: () {
+
+          },
+          elevation: 5,
+          backgroundColor: blueColor,
+          child: Icon(
+            Icons.question_mark,
+            color: white,
+            size: 30,
+          ),
+        ),
+        body: _pages[_selectedIndex],
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          child: BottomAppBar(
+            color: blueColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _bottomAppBarItem(icon: Icons.home, page: 0, label: "Home"),
+                _bottomAppBarItem(icon: Icons.group, page: 1, label: "Services"),
+                _bottomAppBarItem(
+                    icon: Icons.message, page: 2, label: "Messages"),
+                _bottomAppBarItem(icon: Icons.person, page: 3, label: "Profile"),
+              ],
+            ),
           ),
         ),
       ),

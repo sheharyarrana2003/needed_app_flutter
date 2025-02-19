@@ -100,127 +100,132 @@ class _WorkerSignupState extends State<WorkerSignup> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              const SizedBox(height: 20),
-              Center(
-                child: Text(
-                  'Worker Signup',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: blueColor,
-                    fontSize: 24,
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                const SizedBox(height: 20),
+                Center(
+                  child: Text(
+                    'Worker Signup',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: blueColor,
+                      fontSize: 24,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 65,
-                      backgroundImage: file != null ? FileImage(file!) : null,
-                      child: file == null
-                          ? Icon(Icons.person, size: 50, color: Colors.white)
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: IconButton(
-                        onPressed: _selectedImage,
-                        icon: const Icon(Icons.add_a_photo),
-                        color: Colors.blue,
+                const SizedBox(height: 20),
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 65,
+                        backgroundImage: file != null ? FileImage(file!) : null,
+                        child: file == null
+                            ? Icon(Icons.person, size: 50, color: Colors.white)
+                            : null,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              buildTextField("Name", _nameController, Icons.person, (value) {
-                if (value == null || value.isEmpty) return "Enter name";
-                return null;
-              }),
-              const SizedBox(height: 16),
-              buildTextField("Phone Number", _phoneController, Icons.phone,
-                      (value) {
-                    if (value == null || value.isEmpty) return "Enter phone number";
-                    return null;
-                  }),
-              const SizedBox(height: 16),
-              buildTextField("CNIC", _cnicController, Icons.numbers, (value) {
-                if (value == null || value.isEmpty) return "Enter CNIC";
-                return null;
-              }),
-              const SizedBox(height: 16),
-              buildTextField("Password", _passController, Icons.lock, (value) {
-                if (value == null || value.isEmpty) return "Enter password";
-                return null;
-              }),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: workerType,
-                items: types.map((String category) {
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    workerType = newValue;
-                  });
-                },
-                decoration: InputDecoration(labelText: "Category"),
-                validator: (value) =>
-                value == null ? "Select a category" : null,
-              ),
-              const SizedBox(height: 20),
-              Center(
-                child: isLoading
-                    ? CircularProgressIndicator()
-                    : CustomButton(
-                  height: 50,
-                  width: 160,
-                  color: blueColor,
-                  text: "Sign Up",
-                  opacity: 0.5,
-                  fontSize: 18,
-                  onTap: _signUpWorker,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Already have an account? ", style: TextStyle(fontSize: 16)),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => LogInScreen()),
-                        );
-                      },
-                      child: Text(
-                        "Log In",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: blueColor,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: IconButton(
+                          onPressed: _selectedImage,
+                          icon: const Icon(Icons.add_a_photo),
+                          color: Colors.blue,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                buildTextField("Name", _nameController, Icons.person, (value) {
+                  if (value == null || value.isEmpty) return "Enter name";
+                  return null;
+                }),
+                const SizedBox(height: 16),
+                buildTextField("Phone Number", _phoneController, Icons.phone,
+                        (value) {
+                      if (value == null || value.isEmpty) return "Enter phone number";
+                      return null;
+                    }),
+                const SizedBox(height: 16),
+                buildTextField("CNIC", _cnicController, Icons.numbers, (value) {
+                  if (value == null || value.isEmpty) return "Enter CNIC";
+                  return null;
+                }),
+                const SizedBox(height: 16),
+                buildTextField("Password", _passController, Icons.lock, (value) {
+                  if (value == null || value.isEmpty) return "Enter password";
+                  return null;
+                }),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: workerType,
+                  items: types.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      workerType = newValue;
+                    });
+                  },
+                  decoration: InputDecoration(labelText: "Category"),
+                  validator: (value) =>
+                  value == null ? "Select a category" : null,
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: isLoading
+                      ? CircularProgressIndicator()
+                      : CustomButton(
+                    height: 50,
+                    width: 160,
+                    color: blueColor,
+                    text: "Sign Up",
+                    opacity: 0.5,
+                    fontSize: 18,
+                    onTap: _signUpWorker,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Already have an account? ", style: TextStyle(fontSize: 16)),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => LogInScreen()),
+                          );
+                        },
+                        child: Text(
+                          "Log In",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: blueColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

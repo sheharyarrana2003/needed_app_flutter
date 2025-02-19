@@ -5,7 +5,11 @@ import 'package:needed_app/screens/navigation_menu.dart';
 import 'package:needed_app/variables/colors.dart';
 
 class FeedbackScreen extends StatefulWidget {
-  const FeedbackScreen({super.key});
+  final String name;
+  final String phone;
+  final String address;
+  final String type;
+  const FeedbackScreen({super.key, required this.name, required this.phone, required this.address, required this.type});
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
@@ -48,10 +52,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                buildRowTexts(label: "Type", value: "Plumber"),
-                buildRowTexts(label: "Name", value: "Ishfaq Mian"),
-                buildRowTexts(label: "Address", value: "Johar Town"),
-                buildRowTexts(label: "Contact", value: "12345678901"),
+                buildRowTexts(label: "Type", value: widget.type),
+                buildRowTexts(label: "Name", value: widget.name),
+                buildRowTexts(label: "Address", value: widget.address),
+                buildRowTexts(label: "Contact", value: widget.phone),
                 SizedBox(
                   height: 15,
                 ),
